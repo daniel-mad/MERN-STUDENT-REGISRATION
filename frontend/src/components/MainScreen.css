@@ -10,3 +10,23 @@
 .main {
   direction: rtl;
 }
+
+.form-register {
+  max-width: 70%;
+  margin: 0 auto;
+  font-size: 0.8rem;
+}
+input,
+select {
+  max-height: 35px;
+  font-size: 0.9rem;
+}
+
+.form-control {
+  font-size: 0.9rem;
+}
+
+.mx-auto {
+  margin: 0 auto;
+  text-align: center;
+}

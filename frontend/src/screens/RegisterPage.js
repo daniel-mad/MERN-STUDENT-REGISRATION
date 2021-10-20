@@ -1,6 +1,9 @@
 import { useState } from 'react';
-import { Button, Col, Form, Row } from 'react-bootstrap';
+import { Alert, Button, Col, Form, Row } from 'react-bootstrap';
 import MainScreen from '../components/MainScreen';
+import validator from 'validator';
+import axios from 'axios';
+import { useHistory } from 'react-router';
 
 const RegisterPage = ({ collage_name = 'אורט סינגלובסקי' }) => {
   const [validated, setValidated] = useState(false);
@@ -8,30 +11,96 @@ const RegisterPage = ({ collage_name = 'אורט סינגלובסקי' }) => {
   const [lastName, setLastName] = useState('');
   const [idNum, setIdNum] = useState('');
   const [dob, setDob] = useState('');
-  const [gender, setGender] = useState('m');
+  const [gender, setGender] = useState('Male');
   const [homephone, setHomephone] = useState('');
   const [mobilephone, setMobilephone] = useState('');
   const [email, setEmail] = useState('');
   const [aliyahDate, setAliyahDate] = useState('');
-  const [originCountry, setOriginCountry] = useState('ISR');
-  const [nation, setNation] = useState('');
+  const [originCountry, setOriginCountry] = useState('Israel');
+  const [nation, setNation] = useState('יהודי');
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = event => {
+  const history = useHistory();
+
+  const handleError = error => {
+    setError(true);
+    setErrorMessage(error.toString().split(':')[1]);
+    setTimeout(() => {
+      setErrorMessage('');
+      setError(false);
+    }, 1500);
+  };
+
+  const validateFields = () => {
+    if (isNaN(idNum)) {
+      throw new Error('ת״ז לא תקינה');
+    }
+    if (isNaN(mobilephone) || isNaN(homephone)) {
+      throw new Error('מספר טלפון לא תקין');
+    }
+    if (!validator.isEmail(email)) {
+      throw new Error('אימייל לא חוקי');
+    }
+  };
+
+  const handleSubmit = async event => {
     event.preventDefault();
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.stopPropagation();
+      setValidated(true);
+      return;
     }
-    setValidated(true);
+
+    const config = {
+      headrs: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const student = {
+      id_num: idNum,
+      first_name: firstName,
+      last_name: lastName,
+      gender,
+      homephone,
+      mobilephone,
+      email,
+      dob,
+      origin_country: originCountry,
+      aliyah_date: aliyahDate,
+      nation,
+    };
+
+    try {
+      validateFields();
+      const { data } = await axios.post(
+        'http://localhost:5000/api/register',
+        student,
+        config
+      );
+
+      history.push('/registered');
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
   };
 
   return (
     <MainScreen title="טופס רישום תלמיד לשנה״ל תשפ״ג 2022">
+      {error && <Alert variant="danger">{errorMessage}</Alert>}
       <header>
         <h4>מוסד: {collage_name}</h4>
         <h5 className="mt-3 text-primary">פרטי התלמיד הנרשם:</h5>
       </header>
-      <Form noValidate validated={validated} onSubmit={handleSubmit}>
+      <Form
+        noValidate
+        validated={validated}
+        onSubmit={handleSubmit}
+        className="form-register"
+      >
         <Row className="mb-3">
           <Col>
             <Form.Group className="mb-3" controlId="formFirstName">
@@ -105,8 +174,8 @@ const RegisterPage = ({ collage_name = 'אורט סינגלובסקי' }) => {
                 defaultValue={gender}
                 onChange={e => setGender(e.target.value)}
               >
-                <option value="m">זכר</option>
-                <option value="f">נקבה</option>
+                <option value="Male">זכר</option>
+                <option value="Female">נקבה</option>
               </Form.Control>
             </Form.Group>
           </Col>
@@ -176,28 +245,28 @@ const RegisterPage = ({ collage_name = 'אורט סינגלובסקי' }) => {
                 defaultValue={originCountry}
                 onChange={e => setOriginCountry(e.target.value)}
               >
-                <option value="ISR">ישראל</option>
-                <option value="ETH">אתיופיה</option>
-                <option value="RUS">רוסיה</option>
-                <option value="GBR">בריטניה</option>
-                <option value="ROU">רומניה</option>
-                <option value="AZE">אזרבייג׳ן</option>
-                <option value="MDA">מולדובה</option>
+                <option value="Israel">ישראל</option>
+                <option value="Ethiopia">אתיופיה</option>
+                <option value="Rusia">רוסיה</option>
+                <option value="United Kingdom">בריטניה</option>
+                <option value="Romania">רומניה</option>
+                <option value="Azerbaijan">אזרבייג׳ן</option>
+                <option value="Moldova">מולדובה</option>
               </Form.Control>
             </Form.Group>
           </Col>
           <Form.Group as={Col} className="mb-3" controlId="formNationality">
             <Form.Label>לאום</Form.Label>
             <Form.Control
-              type="text"
+              as="select"
               placeholder="הקלד מוצא"
               required
-              value={nation}
+              defaultValue={nation}
               onChange={e => setNation(e.target.value)}
-            />
-            <Form.Control.Feedback type="invalid">
-               הזן  לאום
-            </Form.Control.Feedback>
+            >
+              <option>יהודי</option>
+              <option>ערבי</option>
+            </Form.Control>
           </Form.Group>
         </Row>
         <div className="d-grid">
