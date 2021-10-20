@@ -75,15 +75,15 @@ const RegisterPage = ({ collage_name = 'אורט סינגלובסקי' }) => {
 
     try {
       validateFields();
-      const { data } = await axios.post(
-        'http://localhost:5000/api/register',
-        student,
-        config
-      );
+
+      const { data } = await axios.post('/api/register', student, config);
+
+      if (data.message === 'Error') {
+        throw new Error('ת״ז כבר קיימת במערכת');
+      }
 
       history.push('/registered');
     } catch (error) {
-      console.log(error);
       handleError(error);
     }
   };

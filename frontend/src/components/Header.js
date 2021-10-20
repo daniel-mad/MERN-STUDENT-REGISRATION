@@ -1,31 +1,18 @@
 import axios from 'axios';
 import React from 'react';
-import {
-  Container,
-  Form,
-  FormControl,
-  Nav,
-  Navbar,
-  NavDropdown,
-} from 'react-bootstrap';
+import { Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import FileDownload from 'js-file-download';
 
 const Header = () => {
   const downloadCsv = async () => {
     const config = {
-      // AccessControlExposeHeaders: 'X-Suggested-Filename',
-      // ContentDisposition: 'attachment;filename=report.xls',
-      // ContentType: 'application/octet-stream',
       responseType: 'blob',
       headers: {
         'Content-Type': 'application/json',
       },
     };
-    const response = await axios.get(
-      'http://localhost:5000/api/reports',
-      config
-    );
+    const response = await axios.get('/api/reports', config);
     FileDownload(response.data, 'report.csv');
   };
   return (

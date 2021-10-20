@@ -22,14 +22,19 @@ if (state) {
 }
 
 const registerUser = async (req, res) => {
-  const student = new Student({ ...req.body, college_id: ortSing._id });
   try {
+    const exists = await Student.findOne({ id_num: req.body.id_num });
+
+    if (exists) {
+      return res.json({ message: 'Error', data: 'ת״ז זו כבר קיימת במערכת' });
+    }
+    const student = new Student({ ...req.body, college_id: ortSing._id });
     await student.save();
     res.status(201).json({ message: 'Success', data: student });
   } catch (error) {
     console.log(error);
 
-    res.status(201).json({ message: 'Error' });
+    res.status(500).json({ message: 'Error' });
   }
 };
 
