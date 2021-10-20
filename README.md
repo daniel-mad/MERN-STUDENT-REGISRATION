@@ -30,7 +30,7 @@ App build using MERN stack tech.
 #### 2) Set up environment variables
 
 - create .env file in the root folder
-- add MONGO_URI=<your mongodb uri>
+- add MONGO_URI=`<your mongodb uri>`
 
 ## Live Demo
 
